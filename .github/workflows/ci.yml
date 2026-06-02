@@ -35,7 +35,7 @@ jobs:
 
       # 5. Восстановление пакетов и сборка
       - name: Restore & Build
-        run: dotnet build MyProject.sln --configuration Release
+        run: dotnet build MyProject.slnx --configuration Release
 
       # 6. Запуск тестов (включая сгенерированные)
       - name: Run Tests
