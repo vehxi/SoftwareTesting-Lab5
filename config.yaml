@@ -1,0 +1,6 @@
+# config.yaml
+# Конфигурация генератора тестов
+target_language: csharp
+test_framework: nunit
+spec_path: spec/ipvalidator.yaml
+output_dir: tests/Module.Tests

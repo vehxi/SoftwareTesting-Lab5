@@ -1,0 +1,63 @@
+# spec/ipvalidator.yaml
+module: IpAddressValidator
+
+non_functional_requirements:
+ - id: NFR-1
+   desc: "Корректная обработка null значений и пустых строк (возврат false или выброс исключения в зависимости от метода)."
+ - id: NFR-2
+   desc: "Запрет на использование пробелов в IP-адресе (как внутри, так и по краям)."
+ - id: NFR-3
+   desc: "Запрет на использование ведущих нулей в октетах (например, '01')."
+
+methods:
+ - name: IsValidIpv4
+   req_functional: ["1"]
+   req_non_functional: ["NFR-1", "NFR-2", "NFR-3"]
+   signature: "bool IsValidIpv4(string ipAddress)"
+   pre: "true"
+   post: "Возвращает true, если ipAddress является корректным IPv4 адресом (4 октета от 0 до 255 без ведущих нулей и букв), иначе false"
+   equivalence_classes:
+     - case: "Корректный IPv4 адрес"
+       inputs: ["192.168.1.1"]
+       expected: "true"
+     - case: "Наличие букв в адресе"
+       inputs: ["not.an.ip"]
+       expected: "false"
+     - case: "Число в октете больше 255"
+       inputs: ["256.0.0.1"]
+       expected: "false"
+     - case: "Пробелы в начале или конце"
+       inputs: [" 192.168.1.1 "]
+       expected: "false"
+     - case: "Передача null"
+       inputs: [null]
+       expected: "false"
+     - case: "Передача пустой строки"
+       inputs: [""]
+       expected: "false"
+     - case: "Ведущие нули в октете"
+       inputs: ["192.168.01.1"]
+       expected: "false"
+
+ - name: GetIpClass
+   req_functional: ["2"]
+   req_non_functional: ["NFR-1", "NFR-2"]
+   signature: "string GetIpClass(string ipAddress)"
+   pre: "IsValidIpv4(ipAddress) == true"
+   post: "Возвращает класс (A, B, C, D, E) для валидных адресов, выбрасывает ArgumentException для невалидных адресов или специальных блоков (например, 0 или 127)"
+   equivalence_classes:
+     - case: "Корректность класса A"
+       inputs: ["10.0.0.1"]
+       expected: "\"A\""
+     - case: "Корректность класса B"
+       inputs: ["172.16.0.1"]
+       expected: "\"B\""
+     - case: "Корректность класса C"
+       inputs: ["192.168.1.1"]
+       expected: "\"C\""
+     - case: "Исключение для невалидного IP"
+       inputs: ["999.9.9.9"]
+       expected: "ArgumentException"
+     - case: "Исключение для loopback адреса"
+       inputs: ["127.0.0.1"]
+       expected: "ArgumentException"
