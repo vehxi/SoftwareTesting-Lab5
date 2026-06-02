@@ -9,6 +9,11 @@ on:
 jobs:
   test-generation-and-execution:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
     steps:
       # 1. Получение кода
       - name: Checkout repository
@@ -41,7 +46,14 @@ jobs:
       - name: Run Tests
         run: dotnet test tests/Module.Tests/Module.Tests.csproj --logger "trx;LogFileName=test-results.trx" --verbosity normal
 
-      # 7. Сохранение результатов в артефакты
+      # 7. Красивый отчет по тестам прямо в UI GitHub
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          trx_files: "tests/**/TestResults/*.trx"
+
+      # 8. Сохранение результатов в артефакты
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
